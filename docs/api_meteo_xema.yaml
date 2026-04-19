@@ -1,0 +1,279 @@
+openapi: 3.1.0
+info:
+  title: XEMA Weather Third-Party Service API
+  version: "1.0.0"
+  summary: API REST per consultar dades meteorològiques en temps real i diàries (màxima/mínima) d'estacions XEMA.
+  description: |
+    Aquest servei exposa endpoints per consultar dades meteorològiques de la xarxa XEMA de Catalunya.
+
+    **Autenticació**
+    Totes les crides requereixen una API Key enviada a la capçalera:
+    `X-API-Key: <la_teva_api_key>`
+
+    **Notes**
+    - Les dades s'actualitzen cada 30 minuts.
+    - Es conserven dades dels últims 30 dies.
+    - La cerca per ciutat és parcial i no distingeix majúscules.
+    - No es poden consultar dates futures.
+servers:
+  - url: https://third-party-service-92ob.onrender.com
+    description: Producció (Render)
+
+tags:
+  - name: Weather
+    description: Endpoints de consulta meteorològica
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /api/weather/current/:
+    get:
+      tags: [Weather]
+      operationId: getCurrentWeather
+      summary: Dades actuals per ciutat
+      description: Retorna la darrera lectura meteorològica disponible per a una ciutat.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: city
+          in: query
+          required: true
+          description: Nom (parcial) de la ciutat/estació (case-insensitive).
+          schema:
+            type: string
+            minLength: 1
+          examples:
+            barcelona:
+              value: Barcelona
+      responses:
+        "200":
+          description: Dades meteorològiques actuals
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentWeatherResponse"
+              examples:
+                ok:
+                  value:
+                    city: "Barcelona - el Raval"
+                    temperature: 18.4
+                    precipitation: 0.0
+                    solarIrradiance: 612.5
+        "400":
+          description: Paràmetre invàlid o faltant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                missingCity:
+                  value:
+                    error: "city is required"
+        "401":
+          description: API Key incorrecta o absent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                invalidKey:
+                  value:
+                    error: "Invalid or missing API key"
+        "404":
+          description: Ciutat o dades no trobades
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                notFound:
+                  value:
+                    error: "No station found for city 'xyz'"
+        "503":
+          description: Sense dades disponibles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                noData:
+                  value:
+                    error: "No weather data available"
+
+  /api/weather/daily/:
+    get:
+      tags: [Weather]
+      operationId: getDailyMinMax
+      summary: Màxima i mínima diària per ciutat i data
+      description: |
+        Retorna la temperatura màxima i mínima d'un dia concret per a una ciutat.
+
+        La data ha d'estar en format `YYYY-MM-DD` i no pot ser futura.
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: city
+          in: query
+          required: true
+          description: Nom (parcial) de la ciutat/estació (case-insensitive).
+          schema:
+            type: string
+            minLength: 1
+          examples:
+            barcelona:
+              value: Barcelona
+        - name: date
+          in: query
+          required: true
+          description: Data consultada en format ISO (YYYY-MM-DD).
+          schema:
+            type: string
+            format: date
+          examples:
+            exampleDate:
+              value: "2026-04-18"
+      responses:
+        "200":
+          description: Dades diàries (màxima/mínima)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyWeatherResponse"
+              examples:
+                ok:
+                  value:
+                    city: "Barcelona - el Raval"
+                    date: "2026-04-18"
+                    temperatureMax: 22.1
+                    temperatureMin: 11.3
+        "400":
+          description: Paràmetre invàlid o faltant
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                missingCity:
+                  value:
+                    error: "city is required"
+        "401":
+          description: API Key incorrecta o absent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                invalidKey:
+                  value:
+                    error: "Invalid or missing API key"
+        "404":
+          description: Ciutat o dades no trobades
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                notFound:
+                  value:
+                    error: "No station found for city 'xyz'"
+        "503":
+          description: Sense dades disponibles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                noData:
+                  value:
+                    error: "No weather data available"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: |
+        API key enviada a la capçalera `X-API-Key`.
+
+  schemas:
+    CurrentWeatherResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - city
+        - temperature
+        - precipitation
+        - solarIrradiance
+      properties:
+        city:
+          type: string
+          description: Nom de l'estació retornada.
+          examples:
+            - "Barcelona - el Raval"
+        temperature:
+          type: number
+          format: float
+          description: Temperatura actual (ºC).
+          examples:
+            - 18.4
+        precipitation:
+          type: number
+          format: float
+          description: Precipitació acumulada (mm).
+          examples:
+            - 0.0
+        solarIrradiance:
+          type: number
+          format: float
+          description: Irradiància solar global (W/m²).
+          examples:
+            - 612.5
+
+    DailyWeatherResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - city
+        - date
+        - temperatureMax
+        - temperatureMin
+      properties:
+        city:
+          type: string
+          description: Nom de l'estació retornada.
+          examples:
+            - "Barcelona - el Raval"
+        date:
+          type: string
+          format: date
+          description: Data consultada (YYYY-MM-DD).
+          examples:
+            - "2026-04-18"
+        temperatureMax:
+          type: number
+          format: float
+          description: Temperatura màxima del dia (ºC).
+          examples:
+            - 22.1
+        temperatureMin:
+          type: number
+          format: float
+          description: Temperatura mínima del dia (ºC).
+          examples:
+            - 11.3
+
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: string
+          description: Missatge d'error.
+          examples:
+            - "Invalid or missing API key"
+            - "city is required"
+            - "No station found for city 'xyz'"
+            - "No weather data available"

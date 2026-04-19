@@ -1,0 +1,11 @@
+body,
+.swagger-ui {
+  background: #e8f2ff; /* blau fluix */
+}
+
+.swagger-ui .topbar,
+.swagger-ui .scheme-container,
+.swagger-ui .information-container,
+.swagger-ui .wrapper {
+  background: #e8f2ff;
+}
