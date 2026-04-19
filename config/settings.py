@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["*.onrender.com"]
+ALLOWED_HOSTS = ["*.onrender.com", "localhost", "127.0.0.1",]
 SECRET_KEY = os.getenv("SECRET_KEY")
 XEMA_METEO_TOKEN = os.getenv("XEMA_METEO_TOKEN")
 API_KEY = os.getenv("API_KEY")
