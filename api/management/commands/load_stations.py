@@ -9,7 +9,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         url = (
             "https://analisi.transparenciacatalunya.cat/resource/yqwd-vj5e.json"
-            "?$select=nom_estacio,codi_estacio,nom_municipi,latitud,longitud"
+            "?$select=nom_estacio,codi_estacio,nom_municipi"
             "&$where=nom_estat_ema='Operativa'"
             "&$order=nom_estacio"
         )
