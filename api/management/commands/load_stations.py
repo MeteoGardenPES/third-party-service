@@ -22,8 +22,6 @@ class Command(BaseCommand):
                 defaults={
                     "station": row.get("nom_estacio", ""),
                     "city": row.get("nom_municipi", ""),
-                    "latitude": float(row["latitud"]) if row.get("latitud") else None,
-                    "longitude": float(row["longitud"]) if row.get("longitud") else None,
                     "solarIrradiance": 0,
                     "temperature": 0.0,
                     "precipitation": 0.0,
