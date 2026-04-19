@@ -4,12 +4,15 @@ from datetime import datetime, timedelta, timezone as dt_timezone
 
 import requests
 from django.utils import timezone
+from dotenv import load_dotenv
 
 from .models import Station, WeatherReading
-from .views import XEMA_METEO_TOKEN
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
+XEMA_METEO_TOKEN = os.getenv("XEMA_METEO_TOKEN")
 XEMA_URL = "https://analisi.transparenciacatalunya.cat/resource/nzvn-apee.json"
 
 DIRECT_VARIABLES = {

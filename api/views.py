@@ -5,7 +5,6 @@ from datetime import timezone as dt_timezone
 from functools import wraps
 
 from django.db.models import Max, Min
-from dotenv import load_dotenv
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -13,9 +12,6 @@ from rest_framework.response import Response
 from .models import Station, WeatherReading
 from .xema_sync import ensure_station_synced, _fetch_and_save
 
-load_dotenv()
-
-XEMA_METEO_TOKEN = os.getenv("XEMA_METEO_TOKEN")
 API_KEY = os.getenv("API_KEY")
 
 def require_api_key(func):
