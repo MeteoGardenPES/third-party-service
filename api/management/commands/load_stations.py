@@ -26,8 +26,6 @@ class Command(BaseCommand):
                     "longitude": float(row["longitud"]) if row.get("longitud") else None,
                     "solarIrradiance": 0,
                     "temperature": 0.0,
-                    "windSpeed": 0.0,
-                    "relativeHumidity": 0.0,
                     "precipitation": 0.0,
                 },
             )
